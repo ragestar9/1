@@ -155,10 +155,11 @@ function master(t) {
 }
 requestAnimationFrame(master);
 
-/* scroll milestone announcements */
+/* scroll milestone announcements + velocity-triggered glyph bursts */
 (function scrollMilestones() {
   const marks = [25, 50, 75, 100];
   const seen = new Set();
+  let lastBurst = 0;
   window.setInterval(() => {
     if (!booted) return;
     const pct = Math.round(motion.docProgress * 100);
@@ -168,7 +169,12 @@ requestAnimationFrame(master);
         pushStatus(`SCROLL ${m}% · TRANSMISSION ${m === 100 ? "COMPLETE" : "IN PROGRESS"}`, m === 100 ? "ok" : "meta");
       }
     }
-  }, 800);
+    const now = performance.now();
+    if (Math.abs(motion.velocity) > 5000 && now - lastBurst > 1800) {
+      lastBurst = now;
+      window.__glyphBurst?.(10);
+    }
+  }, 120);
 })();
 
 /* ================================================================
@@ -1565,6 +1571,8 @@ const COMMANDS = MODULES.filter((m) => m.id !== "footer").map((m) => ({
       if (btn) { btn.click(); pushStatus("SPLIT REPLAYED", "ok"); }
       return;
     }
+    if (e.key === "x") { e.preventDefault(); window.__toggleGlyphStorm?.(); return; }
+    if (e.key === "X") { e.preventDefault(); window.__cycleGlyphIntensity?.(); return; }
     if (/^[0-9]$/.test(e.key)) {
       const target = KEY_TO_MODULE.get(e.key);
       if (target) { e.preventDefault(); jumpId(target); }
@@ -1612,7 +1620,134 @@ const COMMANDS = MODULES.filter((m) => m.id !== "footer").map((m) => ({
 })();
 
 /* ================================================================
-   18. CONSOLE SIGNATURE
+   19. GLYPH STORM
+================================================================ */
+
+(function glyphStorm() {
+  const STORM_CHARS = "█▓▒<>/#*+=-∆∇ΣΩΦΨλδπ0123456789ABCDEFZYXWVUTSRQP";
+  const hudBtn = $("#glyph-toggle");
+  const stormState = { on: localStorage.getItem("glyphStorm") !== "off", intensity: Number(localStorage.getItem("glyphIntensity")) || 1, activeJobs: new Map(), nextId: 0 };
+
+  function setHudState() {
+    const dot = hudBtn.querySelector("span:first-child");
+    const label = hudBtn.querySelector("span:last-child");
+    dot.className = `h-1.5 w-1.5 ${stormState.on ? "bg-acid animate-blink" : "bg-line2"}`;
+    label.textContent = stormState.on ? `GLYPH ×${stormState.intensity}` : "GLYPH OFF";
+    hudBtn.classList.toggle("border-acid", stormState.on);
+    hudBtn.classList.toggle("text-acid", stormState.on);
+  }
+  setHudState();
+
+  hudBtn.addEventListener("click", () => {
+    stormState.on = !stormState.on;
+    localStorage.setItem("glyphStorm", stormState.on ? "on" : "off");
+    setHudState();
+    pushStatus(stormState.on ? "GLYPH STORM ON" : "GLYPH STORM OFF", stormState.on ? "ok" : "meta");
+  });
+
+  function collectTextNodes() {
+    const result = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const parent = node.parentElement;
+        if (!parent) return NodeFilter.FILTER_REJECT;
+        if (/^(SCRIPT|STYLE|TEXTAREA|INPUT|NOSCRIPT|CANVAS|SVG|TEMPLATE|IFRAME)$/.test(parent.tagName)) return NodeFilter.FILTER_REJECT;
+        if (parent.closest("#status-console, #preloader, #cmdk, #hotkeys, #reticle, #dwell-panel")) return NodeFilter.FILTER_REJECT;
+        if (stormState.activeJobs.has(parent)) return NodeFilter.FILTER_REJECT;
+        const r = parent.getBoundingClientRect();
+        if (r.width < 2 || r.height < 2) return NodeFilter.FILTER_REJECT;
+        if (r.bottom < -200 || r.top > motion.vh + 200) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let n;
+    while ((n = walker.nextNode())) result.push(n);
+    return result;
+  }
+
+  function pickNode() {
+    const pool = collectTextNodes();
+    if (!pool.length) return null;
+    const weights = pool.map((n) => {
+      const r = n.parentElement.getBoundingClientRect();
+      const fs = parseFloat(getComputedStyle(n.parentElement).fontSize) || 14;
+      return Math.max(1, (r.width * r.height) / 1000) * Math.max(1, fs / 14);
+    });
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < pool.length; i++) {
+      r -= weights[i];
+      if (r <= 0) return pool[i];
+    }
+    return pool[pool.length - 1];
+  }
+
+  function stormOne() {
+    if (!stormState.on) return;
+    const node = pickNode();
+    if (!node) return;
+    const parent = node.parentElement;
+    if (stormState.activeJobs.has(parent)) return;
+    const original = node.nodeValue;
+    if (original.length < 2) return;
+
+    const pureNum = /^[\s:+\-.,%0-9]+$/.test(original);
+    const speed = pureNum ? 10 : 22;
+    const totalFrames = pureNum ? Math.ceil(240 / speed) : Math.min(55, Math.ceil((220 + original.length * 28 + Math.random() * 280) / speed));
+    const resolveStart = Math.floor(totalFrames * 0.35);
+    const id = ++stormState.nextId;
+    stormState.activeJobs.set(parent, id);
+
+    let f = 0;
+    const tick = window.setInterval(() => {
+      f++;
+      if (f >= totalFrames) {
+        node.nodeValue = original;
+        stormState.activeJobs.delete(parent);
+        window.clearInterval(tick);
+        return;
+      }
+      node.nodeValue = original.split("").map((c, i) => {
+        if (c === " " || c === "\u00A0") return c;
+        if (f > resolveStart && i < f - resolveStart) return c;
+        return STORM_CHARS[(i * 17 + f * 31 + id * 7) % STORM_CHARS.length];
+      }).join("");
+    }, speed);
+  }
+
+  function scheduleNext() {
+    const base = 700 - stormState.intensity * 110;
+    const delay = base + Math.random() * 340;
+    window.setTimeout(() => {
+      if (!stormState.on) { scheduleNext(); return; }
+      const jobs = stormState.intensity <= 2 ? 1 : stormState.intensity <= 4 ? 2 : 3;
+      for (let i = 0; i < jobs; i++) stormOne();
+      scheduleNext();
+    }, Math.max(60, delay));
+  }
+  scheduleNext();
+
+  window.__toggleGlyphStorm = () => {
+    stormState.on = !stormState.on;
+    localStorage.setItem("glyphStorm", stormState.on ? "on" : "off");
+    setHudState();
+    pushStatus(stormState.on ? "GLYPH STORM ON" : "GLYPH STORM OFF", stormState.on ? "ok" : "meta");
+  };
+  window.__cycleGlyphIntensity = () => {
+    stormState.intensity = stormState.intensity >= 5 ? 1 : stormState.intensity + 1;
+    localStorage.setItem("glyphIntensity", String(stormState.intensity));
+    setHudState();
+    pushStatus(`GLYPH INTENSITY ×${stormState.intensity}`, "meta");
+  };
+  window.__glyphBurst = (n = 12) => {
+    if (!stormState.on) return;
+    for (let i = 0; i < n; i++) setTimeout(() => stormOne(), i * 30);
+  };
+})();
+
+/* ================================================================
+   20. CONSOLE SIGNATURE
 ================================================================ */
 
 (function signature() {

@@ -25,6 +25,14 @@
   }
 }
 
+/* fix Tailwind base: vertical-align on display:block is invalid */
+img, svg, video, canvas, audio, iframe, embed, object {
+  vertical-align: initial;
+}
+progress {
+  vertical-align: initial;
+}
+
 html {
   background: var(--color-ink);
   color: var(--color-bone);

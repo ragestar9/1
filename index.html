@@ -53,6 +53,7 @@
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">SHADER LAYER</span><span class="tick-label text-bone">S</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">REPLAY SPLIT</span><span class="tick-label text-bone">R</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">NEXT / PREV MODULE</span><span class="tick-label text-bone">J K / ← →</span></div>
+          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">GLYPH STORM</span><span class="tick-label text-bone">X</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">SECRET · OVERDRIVE</span><span class="tick-label text-acid">↑↑↓↓←→←→BA</span></div>
         </div>
         <p class="mt-6 text-sm leading-relaxed text-fog">
@@ -115,6 +116,10 @@
             <svg class="h-3 w-3 text-acid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 7 7 17M17 17V7H7"/></svg>
             FEAT / WEBGL
           </span>
+          <button id="glyph-toggle" class="tick-label hidden items-center gap-2 border border-line px-2 py-1 text-fog transition-colors duration-300 hover:border-acid hover:text-acid sm:flex" title="Glyph storm (X)">
+            <span class="h-1.5 w-1.5 bg-line2"></span>
+            <span>GLYPH STORM</span>
+          </button>
           <span id="hud-fps" class="tick-label tabular-nums text-fog">000 FPS</span>
         </div>
       </div>
