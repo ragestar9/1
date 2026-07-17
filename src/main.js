@@ -1571,6 +1571,12 @@ const COMMANDS = MODULES.filter((m) => m.id !== "footer").map((m) => ({
       if (btn) { btn.click(); pushStatus("SPLIT REPLAYED", "ok"); }
       return;
     }
+    if (e.key === "t" || e.key === "T") { e.preventDefault(); window.__cycleTheme?.(); return; }
+    if (e.key === "f" || e.key === "F") { e.preventDefault(); window.__toggleFocus?.(); return; }
+    if (e.key === "d" || e.key === "D") { e.preventDefault(); window.__toggleDebug?.(); return; }
+    if (e.key === "m" || e.key === "M") { e.preventDefault(); window.__toggleSynth?.(); return; }
+    if (e.key === "p" || e.key === "P") { e.preventDefault(); window.__snap?.(); return; }
+    if (e.key === ".") { e.preventDefault(); window.__toggleDwell?.(); return; }
     if (e.key === "x") { e.preventDefault(); window.__toggleGlyphStorm?.(); return; }
     if (e.key === "X") { e.preventDefault(); window.__cycleGlyphIntensity?.(); return; }
     if (/^[0-9]$/.test(e.key)) {
@@ -1618,6 +1624,241 @@ const COMMANDS = MODULES.filter((m) => m.id !== "footer").map((m) => ({
     wait();
   });
 })();
+
+/* ================================================================
+   18. THEME, FOCUS, IDLE, HERO SPARKS, DWELL, DEBUG, SYNTH, SNAP, EXPORT
+================================================================ */
+
+const THEMES = ["acid", "cyan", "magenta", "amber"];
+const THEME_LABELS = { acid: "ACID GREEN", cyan: "PLASMA CYAN", magenta: "SIGNAL MAGENTA", amber: "SIGNAL AMBER" };
+let currentTheme = localStorage.getItem("theme") || "acid";
+document.body.dataset.theme = currentTheme;
+
+(function themes() {
+  const swatches = $$(".theme-swatch"), wrap = $("#theme-swatches");
+  wrap.classList.remove("hidden"); wrap.classList.add("md:flex");
+  function apply(name) {
+    currentTheme = name;
+    document.body.dataset.theme = name;
+    localStorage.setItem("theme", name);
+    swatches.forEach((s) => s.classList.toggle("on", s.dataset.theme === name));
+    pushStatus(`THEME · ${THEME_LABELS[name]}`, "meta");
+  }
+  swatches.forEach((s) => s.addEventListener("click", () => apply(s.dataset.theme)));
+  apply(currentTheme);
+  window.__cycleTheme = () => { const i = THEMES.indexOf(currentTheme); apply(THEMES[(i + 1) % THEMES.length]); };
+})();
+
+window.__toggleFocus = () => {
+  const on = document.body.classList.toggle("focus-mode");
+  pushStatus(on ? "FOCUS MODE ON — CHROME HIDDEN" : "FOCUS MODE OFF", "meta");
+};
+
+(function idle() {
+  const badge = $("#idle-badge");
+  let idleTimer = 0;
+  let isIdle = false;
+  function reset() {
+    if (isIdle) { isIdle = false; document.body.classList.remove("idle"); badge.classList.remove("on"); pushStatus("ACTIVITY RESUMED", "ok"); }
+    clearTimeout(idleTimer);
+    idleTimer = window.setTimeout(() => {
+      if (!booted) return;
+      isIdle = true;
+      document.body.classList.add("idle");
+      badge.classList.add("on");
+      pushStatus("IDLE MODE ENGAGED", "meta");
+    }, 14000);
+  }
+  ["pointermove", "keydown", "wheel", "touchstart", "scroll"].forEach((ev) => window.addEventListener(ev, reset, { passive: true }));
+  reset();
+})();
+
+/* hero sparks — click-to-burst on #top */
+(function heroSparks() {
+  const hero = $("#top");
+  hero.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("a,button,input")) return;
+    const N = 22;
+    for (let i = 0; i < N; i++) {
+      const spark = document.createElement("div");
+      spark.className = "hero-spark";
+      spark.style.left = e.clientX + "px";
+      spark.style.top = e.clientY + "px";
+      document.body.appendChild(spark);
+      const angle = (i / N) * Math.PI * 2 + Math.random() * 0.5;
+      const speed = 60 + Math.random() * 280;
+      const dx = Math.cos(angle) * speed;
+      const dy = Math.sin(angle) * speed - 60;
+      const life = 620 + Math.random() * 380;
+      const t0 = performance.now();
+      let rafId;
+      function tick(now) {
+        const p = Math.min(1, (now - t0) / life);
+        const delay = i * 4;
+        const pAdj = Math.max(0, Math.min(1, ((now - t0) - delay) / (life - delay)));
+        if (pAdj <= 0 && p < 1) { rafId = requestAnimationFrame(tick); return; }
+        const ease = 1 - Math.pow(1 - pAdj, 3);
+        spark.style.transform = `translate(${dx * ease}px, ${dy * ease + pAdj * life * 0.4}px) scale(${1 - pAdj * 0.7})`;
+        spark.style.opacity = String(1 - pAdj);
+        if (pAdj < 1) rafId = requestAnimationFrame(tick);
+        else spark.remove();
+      }
+      rafId = requestAnimationFrame(tick);
+    }
+  });
+})();
+
+/* dwell tracking per module */
+const dwellData = new Map(MODULES.map((m) => [m.id, 0]));
+let dwellActiveId = "top";
+let dwellLast = performance.now();
+
+(function dwell() {
+  const panel = $("#dwell-panel"), rows = $("#dwell-rows");
+  function accumulate() { const now = performance.now(); dwellData.set(dwellActiveId, (dwellData.get(dwellActiveId) || 0) + (now - dwellLast)); dwellLast = now; }
+  function render() {
+    accumulate();
+    const total = Array.from(dwellData.values()).reduce((a, b) => a + b, 0) || 1;
+    rows.innerHTML = MODULES.filter((m) => dwellData.get(m.id) > 0).sort((a, b) => (dwellData.get(b.id) || 0) - (dwellData.get(a.id) || 0)).map((m) => {
+      const ms = dwellData.get(m.id) || 0;
+      const pct = Math.round((ms / total) * 100);
+      const secs = (ms / 1000).toFixed(1);
+      const act = m.id === dwellActiveId ? "active" : "";
+      return `<div class="dwell-row ${act}"><span>${m.n}</span><span>${m.name}</span><span class="text-bone tabular-nums">${secs}s · ${pct}%</span></div><div class="dwell-bar"><span style="width:${pct}%"></span></div>`;
+    }).join("");
+  }
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { accumulate(); const id = e.target.id; if (id && dwellData.has(id)) dwellActiveId = id; }
+    }
+  }, { rootMargin: "-42% 0px -50% 0px" });
+  $$("[data-module]").forEach((el) => { if (el.id) io.observe(el); });
+  window.__toggleDwell = () => { const on = panel.classList.toggle("hidden") === false; if (on) render(); pushStatus(on ? "DWELL PANEL OPENED" : "DWELL PANEL CLOSED", "meta"); };
+  panel.classList.add("hidden");
+  window.setInterval(() => { if (!panel.classList.contains("hidden")) render(); }, 500);
+  window.__getDwellData = () => {
+    accumulate();
+    return Array.from(dwellData.entries()).map(([id, ms]) => {
+      const m = MODULE_BY_ID.get(id);
+      return { id, name: m?.name, ms: Math.round(ms), seconds: +(ms / 1000).toFixed(2) };
+    });
+  };
+})();
+
+window.__toggleDebug = () => {
+  const g = $("#debug-grid");
+  const on = g.classList.toggle("on");
+  pushStatus(on ? "DEBUG GRID ON" : "DEBUG GRID OFF", "meta");
+};
+
+/* ambient synth — Web Audio API */
+let synthCtx = null;
+let synthOn = false;
+let synthNodes = null;
+
+async function toggleSynth() {
+  if (synthOn) {
+    if (synthNodes) synthNodes.master.gain.linearRampToValueAtTime(0, synthCtx.currentTime + 0.4);
+    setTimeout(() => { try { synthNodes?.osc1.stop(); synthNodes?.osc2.stop(); synthNodes?.lfo.stop(); } catch (_) {} synthNodes = null; }, 500);
+    synthOn = false;
+    pushStatus("SYNTH · OFF", "meta");
+    return;
+  }
+  if (!synthCtx) synthCtx = new (window.AudioContext || window.webkitAudioContext)();
+  await synthCtx.resume();
+  const t = synthCtx.currentTime;
+  const master = synthCtx.createGain();
+  master.gain.setValueAtTime(0, t);
+  master.gain.linearRampToValueAtTime(0.05, t + 0.8);
+  master.connect(synthCtx.destination);
+  const filter = synthCtx.createBiquadFilter();
+  filter.type = "lowpass"; filter.frequency.value = 800; filter.Q.value = 4;
+  filter.connect(master);
+  const osc1 = synthCtx.createOscillator();
+  osc1.type = "sine"; osc1.frequency.value = 55;
+  osc1.connect(filter); osc1.start(t);
+  const osc2 = synthCtx.createOscillator();
+  osc2.type = "sawtooth"; osc2.frequency.value = 55 * 1.5;
+  const osc2Gain = synthCtx.createGain();
+  osc2Gain.gain.value = 0.2;
+  osc2.connect(osc2Gain).connect(filter); osc2.start(t);
+  const lfo = synthCtx.createOscillator();
+  lfo.frequency.value = 0.15;
+  const lfoGain = synthCtx.createGain();
+  lfoGain.gain.value = 400;
+  lfo.connect(lfoGain).connect(filter.frequency); lfo.start(t);
+  synthNodes = { master, filter, osc1, osc2, lfo };
+  synthOn = true;
+  pushStatus("SYNTH · AMBIENT LOOP ENGAGED", "ok");
+  updaters.push(() => {
+    if (!synthOn || !synthNodes) return;
+    const v = Math.min(Math.abs(motion.velocity) / 6000, 1);
+    synthNodes.filter.frequency.setTargetAtTime(400 + v * 2400 + motion.docProgress * 900, synthCtx.currentTime, 0.25);
+    const pitch = 55 * (1 + motion.docProgress * 0.6);
+    synthNodes.osc1.frequency.setTargetAtTime(pitch, synthCtx.currentTime, 0.4);
+    synthNodes.osc2.frequency.setTargetAtTime(pitch * 1.5, synthCtx.currentTime, 0.4);
+  });
+}
+window.__toggleSynth = toggleSynth;
+
+/* snapshot PNG */
+async function takeSnapshot() {
+  const w = Math.min(window.innerWidth, 1920), h = Math.min(window.innerHeight, 1200);
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#08080a"; ctx.fillRect(0, 0, w, h);
+  const fx = document.querySelector("#fx-layer canvas");
+  if (fx) { try { ctx.drawImage(fx, 0, 0, w, h); } catch (_) {} }
+  ctx.fillStyle = "rgba(8,8,10,0.55)"; ctx.fillRect(0, h - 140, w, 140);
+  ctx.fillStyle = "#c8ff2e"; ctx.font = "700 22px monospace";
+  ctx.fillText("STRINGTUNE × THREE.JS", 24, h - 96);
+  ctx.fillStyle = "#e6e6ea"; ctx.font = "12px monospace";
+  const mod = MODULES[Math.max(0, Math.min(MODULES.length - 1, currentModuleIdx))];
+  ctx.fillText(`MODULE ${mod.n} · ${mod.name}   ·   SCROLL ${Math.round(motion.docProgress * 100)}%   ·   ${fpsNow} FPS   ·   THEME ${THEME_LABELS[currentTheme]}`, 24, h - 66);
+  ctx.fillStyle = "#8e8e96";
+  ctx.fillText(new Date().toISOString(), 24, h - 42);
+  ctx.fillText("build · 2026 · one file, zero framework", 24, h - 22);
+  const flash = document.createElement("div"); flash.className = "snap-flash";
+  document.body.appendChild(flash); setTimeout(() => flash.remove(), 500);
+  return new Promise((resolve) => {
+    c.toBlob((blob) => {
+      if (!blob) { resolve(); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url;
+      a.download = `stringtune-${mod.name.toLowerCase()}-${Date.now()}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      pushStatus(`SNAPSHOT SAVED · ${mod.name}`, "ok");
+      resolve();
+    }, "image/png");
+  });
+}
+window.__snap = takeSnapshot;
+
+/* export JSON telemetry */
+function exportJSON() {
+  const data = {
+    generated: new Date().toISOString(),
+    build: "stringtune-threejs · one file · zero framework",
+    theme: currentTheme,
+    performance: { fpsNow, peakFps, sampleHistory: sparkHistory },
+    scroll: { pixels: Math.round(motion.scrollY), progress: +(motion.docProgress * 100).toFixed(2), velocity: Math.round(motion.velocity) },
+    pointer: { normalizedX: +motion.spx.toFixed(3), normalizedY: +motion.spy.toFixed(3), speed: Math.round(motion.pointerV) },
+    activeModule: MODULES[Math.max(0, Math.min(MODULES.length - 1, currentModuleIdx))],
+    dwell: window.__getDwellData ? window.__getDwellData() : [],
+    modules: MODULES,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url;
+  a.download = `stringtune-telemetry-${Date.now()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  pushStatus("TELEMETRY EXPORTED — JSON DOWNLOADED", "ok");
+}
+
+$("#ft-snap")?.addEventListener("click", () => takeSnapshot());
+$("#ft-export")?.addEventListener("click", exportJSON);
 
 /* ================================================================
    19. GLYPH STORM

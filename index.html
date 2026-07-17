@@ -53,7 +53,12 @@
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">SHADER LAYER</span><span class="tick-label text-bone">S</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">REPLAY SPLIT</span><span class="tick-label text-bone">R</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">NEXT / PREV MODULE</span><span class="tick-label text-bone">J K / ← →</span></div>
+          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">CYCLE THEME</span><span class="tick-label text-bone">T</span></div>
+          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">FOCUS MODE</span><span class="tick-label text-bone">F</span></div>
+          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">DEBUG GRID</span><span class="tick-label text-bone">D</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">GLYPH STORM</span><span class="tick-label text-bone">X</span></div>
+          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">DWELL PANEL</span><span class="tick-label text-bone">.</span></div>
+          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">SNAPSHOT PNG</span><span class="tick-label text-bone">P</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">SECRET · OVERDRIVE</span><span class="tick-label text-acid">↑↑↓↓←→←→BA</span></div>
         </div>
         <p class="mt-6 text-sm leading-relaxed text-fog">
@@ -980,6 +985,33 @@
     <!-- ==================== STATUS CONSOLE ==================== -->
     <div id="status-console" class="fixed bottom-4 right-4 z-[85] hidden w-80 flex-col gap-1 font-mono text-[10px] leading-tight text-bone/90 md:flex" aria-live="polite"></div>
 
+    <!-- ==================== IDLE INDICATOR ==================== -->
+    <div id="idle-badge" class="fixed left-1/2 top-16 z-[75] hidden -translate-x-1/2 items-center gap-3 border border-line2 bg-ink/85 px-5 py-2 backdrop-blur-md">
+      <span class="h-1.5 w-1.5 animate-blink bg-acid"></span>
+      <span class="tick-label text-fog">IDLE MODE — ANY INPUT RESUMES</span>
+    </div>
+
+    <!-- ==================== THEME SWATCHES ==================== -->
+    <div id="theme-swatches" class="hud-in fixed left-1/2 top-14 z-[60] hidden -translate-x-1/2 items-center gap-2 border border-line bg-ink/72 px-3 py-2 backdrop-blur-md md:flex" style="--hud-t: translateY(-102%)">
+      <span class="tick-label text-fog">THEME</span>
+      <button class="theme-swatch h-4 w-4 border border-line2 outline-offset-2 outline-acid" data-theme="acid" style="background:#c8ff2e" title="Acid"></button>
+      <button class="theme-swatch h-4 w-4 border border-line2 outline-offset-2 outline-acid" data-theme="cyan" style="background:#5ce1ff" title="Cyan"></button>
+      <button class="theme-swatch h-4 w-4 border border-line2 outline-offset-2 outline-acid" data-theme="magenta" style="background:#ff5cd6" title="Magenta"></button>
+      <button class="theme-swatch h-4 w-4 border border-line2 outline-offset-2 outline-acid" data-theme="amber" style="background:#ffb84d" title="Amber"></button>
+    </div>
+
+    <!-- ==================== DWELL PANEL ==================== -->
+    <div id="dwell-panel" class="fixed left-4 top-16 z-[75] hidden w-72 border border-line2 bg-ink/90 p-4 backdrop-blur-md">
+      <div class="flex items-center justify-between border-b border-line pb-2">
+        <span class="tick-label text-fog">DWELL PER MODULE</span>
+        <span class="tick-label text-acid">.</span>
+      </div>
+      <div id="dwell-rows" class="mt-3 max-h-[60vh] space-y-1 overflow-y-auto"></div>
+    </div>
+
+    <!-- ==================== DEBUG GRID ==================== -->
+    <div id="debug-grid" aria-hidden="true" class="pointer-events-none fixed inset-0 z-[74] hidden"></div>
+
     <!-- ==================== FOOTER ==================== -->
     <footer id="footer" data-module="END / TRANSMISSION" class="relative">
       <div class="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
@@ -999,10 +1031,20 @@
           <span class="tick-label tabular-nums text-fog">GC PRESSURE <span class="text-acid">LOW</span></span>
         </div>
         <div class="mt-10 flex flex-col items-start justify-between gap-6 border-t border-line pt-6 md:flex-row md:items-center">
-          <button id="ft-copy" class="tick-label group flex items-center gap-3 border border-line2 px-5 py-3 text-bone transition-colors duration-300 hover:border-acid hover:text-acid">
-            <svg class="h-4 w-4 text-acid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-            <span id="ft-copy-label">COPY LINK</span>
-          </button>
+          <div class="flex flex-wrap gap-3">
+            <button id="ft-copy" class="tick-label group flex items-center gap-3 border border-line2 px-5 py-3 text-bone transition-colors duration-300 hover:border-acid hover:text-acid">
+              <svg class="h-4 w-4 text-acid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+              <span id="ft-copy-label">COPY LINK</span>
+            </button>
+            <button id="ft-snap" class="tick-label group flex items-center gap-3 border border-line2 px-5 py-3 text-bone transition-colors duration-300 hover:border-acid hover:text-acid">
+              <svg class="h-4 w-4 text-acid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>SNAPSHOT</span>
+            </button>
+            <button id="ft-export" class="tick-label group flex items-center gap-3 border border-line2 px-5 py-3 text-bone transition-colors duration-300 hover:border-acid hover:text-acid">
+              <svg class="h-4 w-4 text-acid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13m0 0-5-5m5 5 5-5M4 21h16"/></svg>
+              <span>EXPORT JSON</span>
+            </button>
+          </div>
           <a href="https://github.com/ragestar9/string/tree/feat/threejs-extend" target="_blank" rel="noreferrer" class="tick-label group flex items-center gap-3 text-bone transition-colors hover:text-acid">
             <svg class="h-4 w-4 text-acid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M6 9v6m12-3a9 9 0 0 1-9 9"/></svg>
             RAGESTAR9 / STRING
