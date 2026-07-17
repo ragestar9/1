@@ -56,9 +56,11 @@
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">CYCLE THEME</span><span class="tick-label text-bone">T</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">FOCUS MODE</span><span class="tick-label text-bone">F</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">DEBUG GRID</span><span class="tick-label text-bone">D</span></div>
-          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">GLYPH STORM</span><span class="tick-label text-bone">X</span></div>
+          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">AMBIENT SOUND</span><span class="tick-label text-bone">M</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">DWELL PANEL</span><span class="tick-label text-bone">.</span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">SNAPSHOT PNG</span><span class="tick-label text-bone">P</span></div>
+          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">GLYPH STORM</span><span class="tick-label text-bone">X</span></div>
+          <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">PORTSTACK TRANSPORT</span><span class="tick-label text-acid">\ </span></div>
           <div class="flex items-center justify-between border-b border-line py-2"><span class="tick-label text-fog">SECRET · OVERDRIVE</span><span class="tick-label text-acid">↑↑↓↓←→←→BA</span></div>
         </div>
         <p class="mt-6 text-sm leading-relaxed text-fog">
@@ -124,6 +126,10 @@
           <button id="glyph-toggle" class="tick-label hidden items-center gap-2 border border-line px-2 py-1 text-fog transition-colors duration-300 hover:border-acid hover:text-acid sm:flex" title="Glyph storm (X)">
             <span class="h-1.5 w-1.5 bg-line2"></span>
             <span>GLYPH STORM</span>
+          </button>
+          <button id="port-open" class="tick-label hidden items-center gap-2 border border-acid px-2 py-1 text-acid transition-transform duration-300 hover:scale-105 sm:flex" title="Portstack transport (\)">
+            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h13m0 0-5-5m5 5-5 5M21 5v14"/></svg>
+            <span>PORT</span>
           </button>
           <span id="hud-fps" class="tick-label tabular-nums text-fog">000 FPS</span>
         </div>
@@ -292,7 +298,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">Stacked layers drift at different speeds.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Scroll travel becomes a vertical transform applied per layer. Different strengths build real depth.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Scroll travel becomes a vertical transform applied per layer. Different strengths build real depth — the module owns the transform, the scene composes itself.</p></div>
         </div>
       </div>
       <div class="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24">
@@ -332,7 +338,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">A stable 0→1 value you can drive anything with.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">An eased, clamped number exposed as a variable over two screens of travel.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">An eased, clamped number exposed as a variable over two screens of travel. Here it draws the dial, spins the cube and fills the rail — one value, three systems.</p></div>
         </div>
       </div>
       <div id="prog-wrap" class="relative mx-auto h-[230vh] max-w-[1440px]">
@@ -392,7 +398,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">Catch the velocity of the scroll.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">The signed scroll delta, smoothed into a per-frame lerp channel.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">The signed scroll delta, smoothed into a per-frame lerp channel. The type below leans into the direction and speed you throw at it — scroll fast and it bends.</p></div>
         </div>
       </div>
       <div class="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24">
@@ -427,7 +433,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">Turn scroll energy into drift.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Scroll motion accumulates into a per-element pixel transform.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Scroll motion accumulates into a per-element pixel transform. Each tile carries a different multiplier, so the row shears apart and floats past at its own pace.</p></div>
         </div>
       </div>
       <div id="glide-grid" class="mx-auto max-w-[1440px] px-5 pb-20 md:px-10 md:pb-28">
@@ -471,7 +477,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">A reactive pointer with local coordinates.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">The cursor module writes normalized per-element coordinates the moment your pointer crosses a zone.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">The cursor module writes normalized per-element coordinates the moment your pointer crosses a zone. Hover both — one mirrors you, one leans toward you.</p></div>
         </div>
       </div>
       <div class="mx-auto grid max-w-[1440px] grid-cols-1 gap-3 px-5 pb-16 md:grid-cols-2 md:px-10 md:pb-24">
@@ -519,7 +525,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">Elements pull toward the pointer.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Inside an active radius the pointer's offset is written to each control as a translate.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Inside an active radius the pointer's offset is written to each control as a translate. Drag your cursor around the field — each button has its own pull strength.</p></div>
         </div>
       </div>
       <div class="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24">
@@ -563,7 +569,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">A light that follows the cursor across 3D cards.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Spotlight angle and distance combine with cursor tilt so each card behaves like a lit, dimensional surface.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Spotlight angle and distance combine with cursor tilt so each card behaves like a lit, dimensional surface under your pointer.</p></div>
         </div>
       </div>
       <div class="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24" style="perspective: 1200px">
@@ -625,7 +631,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">A real WebGL scene, driven by the runtime.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">A torus-knot engine with three satellite bodies on a live GL context.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">A torus-knot engine with three satellite bodies on a live GL context. Section progress spins the rig, scroll velocity agitates the satellites, the pointer banks the whole frame.</p></div>
         </div>
       </div>
       <div class="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24">
@@ -666,7 +672,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">Cursor velocity becomes a spring.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Pointer velocity is injected into a per-card spring simulation.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Pointer velocity is injected into a per-card spring simulation. Sweep fast across the grid and the tiles shove, wobble, recoil and drift back — each on its own constants.</p></div>
         </div>
       </div>
       <div class="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24">
@@ -710,7 +716,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">Grab them. Throw them. They come home.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Each chip is a live physics body — pointer velocity becomes momentum, the frame becomes walls, and a rest-spring reels them back to their slot.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Each chip is a live physics body — pointer velocity becomes momentum, the frame becomes walls, and a rest-spring reels them back to their slot with no easing to fight the physics.</p></div>
         </div>
       </div>
       <div class="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24">
@@ -758,7 +764,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">Text, rebuilt character by character.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">The splitter rewrites the headline into indexed character spans, then a cascading stagger rebuilds it.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">The splitter rewrites the headline into indexed character spans, then a cascading stagger rebuilds it — re-enter the viewport or press replay to tear it down again.</p></div>
         </div>
       </div>
       <div class="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24">
@@ -794,11 +800,12 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">A geometric wipe that reveals the picture underneath.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Scroll progress drives an animated <span class="text-bone">clip-path polygon</span> — the mask peels back diagonally as the section travels through the viewport.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Scroll progress drives an animated <span class="text-bone">clip-path polygon</span> — the mask peels back diagonally as the section travels through the viewport, uncovering a lit surface.</p></div>
         </div>
       </div>
       <div class="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24">
         <div id="mask-stage" class="relative h-[70vh] min-h-[440px] overflow-hidden border border-line bg-ink2">
+          <!-- background: acid grid + glow -->
           <div class="absolute inset-0 grid-bg opacity-90"></div>
           <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(200,255,46,0.35),transparent_55%),radial-gradient(circle_at_80%_75%,rgba(200,255,46,0.18),transparent_60%)]"></div>
           <div class="absolute inset-0 flex items-center justify-center">
@@ -808,6 +815,7 @@
               <div class="tick-label mt-4 text-ink/70">CLIP-PATH · 5-POINT POLYGON · DRIVEN BY SECTION PROGRESS</div>
             </div>
           </div>
+          <!-- foreground mask layer -->
           <div id="mask-layer" class="absolute inset-0 bg-ink" style="clip-path: polygon(0% 0, 100% 0, 100% 100%, 0% 100%, 0% 50%)">
             <div class="absolute inset-0 grid-bg opacity-30"></div>
             <div class="absolute inset-0 flex items-center justify-center">
@@ -842,7 +850,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">A scroll-driven frame sequence.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Stepped output tied to scroll travel: a 00–99 frame counter and an eight-step timeline.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Stepped output tied to scroll travel: a 00–99 frame counter and an eight-step timeline, every step lighting in order as you descend two screens.</p></div>
         </div>
       </div>
       <div id="seq-wrap" class="relative mx-auto h-[260vh] max-w-[1440px]">
@@ -896,7 +904,7 @@
         </div>
         <div class="grid grid-cols-1 gap-6 pb-10 pt-8 md:grid-cols-12 md:pb-16 md:pt-12">
           <div class="md:col-span-7"><h2 class="rv text-balance font-display text-[clamp(2rem,4.2vw,3.6rem)] font-medium leading-[1.02] tracking-tight text-bone">Live FPS &amp; position telemetry.</h2></div>
-          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Two global modules broadcast through the document. The panels in the corners of your screen are the same feed.</p></div>
+          <div class="md:col-span-4 md:col-start-9"><p class="rv max-w-sm text-[15px] leading-relaxed text-fog" style="--rvd: 0.12s">Two global modules broadcast through the document. The panels in the corners of your screen are the same feed — this is where the numbers come from.</p></div>
         </div>
       </div>
       <div class="mx-auto grid max-w-[1440px] grid-cols-1 gap-3 px-5 pb-16 md:grid-cols-2 md:px-10 md:pb-24">
@@ -912,7 +920,7 @@
             </div>
             <div id="fps-spark" class="flex h-24 flex-1 items-end justify-end gap-[3px]"></div>
           </div>
-          <p class="mt-6 border-t border-line pt-4 text-sm leading-relaxed text-fog">Counts rendered frames each second and writes the result across the document.</p>
+          <p class="mt-6 border-t border-line pt-4 text-sm leading-relaxed text-fog">Counts rendered frames each second and writes the result across the document. Both corner panels on your screen mirror this loop.</p>
         </div>
         <div class="border border-line bg-panel p-6 md:p-8">
           <div class="flex items-center justify-between">
@@ -944,7 +952,7 @@
               <div class="absolute inset-x-0 bottom-0 h-px bg-line2"></div>
             </div>
           </div>
-          <p class="mt-6 border-t border-line pt-4 text-sm leading-relaxed text-fog">Broadcasts scroll pixels, percentage and direction globally.</p>
+          <p class="mt-6 border-t border-line pt-4 text-sm leading-relaxed text-fog">Broadcasts scroll pixels, percentage and direction globally — the rail on the right is your live position inside this transmission.</p>
         </div>
       </div>
     </section>
@@ -983,7 +991,9 @@
     </section>
 
     <!-- ==================== STATUS CONSOLE ==================== -->
-    <div id="status-console" class="fixed bottom-4 right-4 z-[85] hidden w-80 flex-col gap-1 font-mono text-[10px] leading-tight text-bone/90 md:flex" aria-live="polite"></div>
+    <div id="status-console" class="fixed bottom-4 right-4 z-[85] hidden w-80 flex-col gap-1 font-mono text-[10px] leading-tight text-bone/90 md:flex" aria-live="polite">
+      <!-- lines injected by JS -->
+    </div>
 
     <!-- ==================== IDLE INDICATOR ==================== -->
     <div id="idle-badge" class="fixed left-1/2 top-16 z-[75] hidden -translate-x-1/2 items-center gap-3 border border-line2 bg-ink/85 px-5 py-2 backdrop-blur-md">
@@ -1011,6 +1021,67 @@
 
     <!-- ==================== DEBUG GRID ==================== -->
     <div id="debug-grid" aria-hidden="true" class="pointer-events-none fixed inset-0 z-[74] hidden"></div>
+
+    <!-- ==================== PORTSTACK OVERLAY ==================== -->
+    <div id="portstack" class="fixed inset-0 z-[92] hidden" aria-hidden="true">
+      <!-- backdrop dim -->
+      <div id="port-dim" class="absolute inset-0 bg-ink/95 backdrop-blur-sm"></div>
+
+      <!-- top bar / meta -->
+      <div class="absolute inset-x-0 top-0 z-10 flex h-12 items-center justify-between border-b border-line2 bg-ink/60 px-4 backdrop-blur-md md:px-8">
+        <span class="tick-label flex items-center gap-3 text-bone">
+          <span class="h-1.5 w-1.5 animate-blink bg-acid"></span>
+          PORTSTACK · <span class="text-acid">ACTIVE</span>
+          <span class="text-line2">·</span>
+          <span id="port-total" class="text-fog">20 NODES</span>
+        </span>
+        <span class="tick-label hidden text-fog md:block">
+          <span class="text-bone">SCROLL</span> · surf  ·  
+          <span class="text-bone">← →</span> · step  ·  
+          <span class="text-bone">↵</span> · port  ·  
+          <span class="text-bone">ESC</span> · dismiss
+        </span>
+      </div>
+
+      <!-- 3D deck stage -->
+      <div id="port-stage" class="absolute inset-0 flex items-center justify-center" style="perspective: 1600px">
+        <div id="port-deck" class="relative h-[62vh] w-[62vw] max-w-[720px]" style="transform-style: preserve-3d"></div>
+      </div>
+
+      <!-- selection readout -->
+      <div class="absolute inset-x-0 top-1/2 z-10 pointer-events-none -translate-y-1/2 px-6 md:px-16">
+        <div class="flex items-start justify-between gap-8">
+          <div class="max-w-[280px]">
+            <div class="tick-label text-fog">SELECTED</div>
+            <div id="port-sel-idx" class="mt-2 font-mono text-6xl font-light tabular-nums text-acid md:text-7xl">01</div>
+            <div id="port-sel-name" class="mt-3 font-display text-2xl font-medium uppercase tracking-tight text-bone md:text-3xl">REVEAL</div>
+            <div id="port-sel-meta" class="mt-2 text-sm leading-relaxed text-fog">Entry choreography</div>
+            <div class="mt-6 flex items-center gap-3">
+              <span class="tick-label text-fog">STATUS</span>
+              <span id="port-sel-status" class="tick-label text-line2">UNVISITED</span>
+            </div>
+          </div>
+          <div class="hidden max-w-[280px] text-right md:block">
+            <div class="tick-label text-fog">FROM</div>
+            <div id="port-from-name" class="mt-2 font-display text-xl font-medium uppercase tracking-tight text-bone">ORIGIN</div>
+            <div class="tick-label mt-2 text-fog">DWELL <span id="port-from-dwell" class="text-bone">00.0s</span></div>
+            <div class="mt-6 tick-label text-fog">SESSION</div>
+            <div id="port-visited" class="mt-1 tick-label text-acid">0 / 20 VISITED</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- confirm button (also press Enter) -->
+      <div class="pointer-events-auto absolute inset-x-0 bottom-24 z-10 flex justify-center px-4">
+        <button id="port-confirm" class="tick-label group flex items-center gap-3 border border-acid bg-acid px-6 py-3 text-ink transition-transform duration-300 hover:scale-105">
+          <span>PORT →</span>
+          <span id="port-confirm-tag" class="border-l border-ink/40 pl-3">01 · REVEAL</span>
+        </button>
+      </div>
+
+      <!-- compressed spine (bottom) -->
+      <div id="port-spine" class="absolute inset-x-0 bottom-0 z-10 flex flex-col gap-[2px] border-t border-line2 bg-ink/70 px-4 pb-3 pt-2 backdrop-blur-md md:px-8"></div>
+    </div>
 
     <!-- ==================== FOOTER ==================== -->
     <footer id="footer" data-module="END / TRANSMISSION" class="relative">

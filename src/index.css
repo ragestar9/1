@@ -25,14 +25,6 @@
   }
 }
 
-/* fix Tailwind base: vertical-align on display:block is invalid */
-img, svg, video, canvas, audio, iframe, embed, object {
-  vertical-align: initial;
-}
-progress {
-  vertical-align: initial;
-}
-
 html {
   background: var(--color-ink);
   color: var(--color-bone);
@@ -600,6 +592,191 @@ body.idle {
 @keyframes snapFlash {
   0% { opacity: 0.85; }
   100% { opacity: 0; }
+}
+
+/* ==================== PORTSTACK ==================== */
+
+#portstack.open {
+  display: block;
+  animation: portFadeIn 0.5s ease-out;
+}
+@keyframes portFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+#portstack.dismissing {
+  animation: portFadeOut 0.4s ease-in forwards;
+}
+@keyframes portFadeOut {
+  to { opacity: 0; }
+}
+
+/* when portstack is open, collapse all sections into thin spines */
+body.porting > header[data-module],
+body.porting > section[data-module],
+body.porting > footer[data-module] {
+  transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.4s ease;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+/* portstack cards */
+.port-card {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(56vw, 620px);
+  height: min(46vh, 400px);
+  border: 1px solid var(--color-line2);
+  background: linear-gradient(180deg, var(--color-panel) 0%, var(--color-ink2) 100%);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+.port-card.front {
+  border-color: var(--color-acid);
+  box-shadow: 0 0 0 1px var(--color-acid) inset, 0 40px 80px rgba(0, 0, 0, 0.6);
+}
+.port-card.visited {
+  border-color: var(--color-acid);
+}
+.port-card.current::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border: 1px dashed var(--color-acid);
+  pointer-events: none;
+  animation: portPulse 2s ease-in-out infinite;
+}
+@keyframes portPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.port-card-idx {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--color-fog);
+}
+.port-card.front .port-card-idx {
+  color: var(--color-acid);
+}
+.port-card-name {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--color-bone);
+}
+.port-card-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+}
+.port-card-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-line2);
+}
+.port-card-status.on {
+  color: var(--color-acid);
+}
+.port-card-status .dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-line2);
+}
+.port-card-status.on .dot {
+  background: var(--color-acid);
+  animation: portPulse 1.4s ease-in-out infinite;
+}
+
+/* mini preview area on each card */
+.port-card-preview {
+  flex: 1;
+  margin-top: 20px;
+  border-top: 1px solid var(--color-line);
+  padding-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+}
+.port-card-preview span {
+  height: 100%;
+  background: var(--color-line);
+}
+.port-card.visited .port-card-preview span:nth-child(-n+3) {
+  background: var(--color-acid);
+}
+.port-card.front .port-card-preview span {
+  background: var(--color-acid);
+  opacity: 0.15;
+}
+.port-card.front .port-card-preview span:nth-child(-n+3) {
+  opacity: 1;
+}
+
+/* spine — compressed rows shown at bottom of overlay */
+.port-spine-row {
+  display: grid;
+  grid-template-columns: 4ch 1fr auto;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-line2);
+  padding: 2px 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.port-spine-row:hover {
+  color: var(--color-bone);
+}
+.port-spine-row.visited {
+  color: var(--color-fog);
+}
+.port-spine-row.current {
+  color: var(--color-acid);
+}
+.port-spine-bar {
+  height: 1px;
+  background: currentColor;
+  opacity: 0.4;
+}
+.port-spine-row.current .port-spine-bar,
+.port-spine-row.visited .port-spine-bar {
+  opacity: 1;
+}
+
+/* prevent scrollbar chrome from jumping when portstack takes over */
+html.port-lock {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #portstack.open,
+  #portstack.dismissing,
+  body.porting > header[data-module],
+  body.porting > section[data-module],
+  body.porting > footer[data-module] {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ==================== reduced motion ==================== */
